@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaMoneyBillWave,
@@ -9,12 +9,21 @@ import {
   FaHeadset,
   FaMoon,
   FaSun,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import { ThemeContext } from "../../ThemeContext";
+import { AuthContext } from "../../AuthContext";
 import "../Sidebar/Sidebar.css";
 
 function Sidebar() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
+  const { currentUser, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <aside className="sidebar">
@@ -24,7 +33,12 @@ function Sidebar() {
           alt="profile"
           className="avatar"
         />
-        <h3>Janice Chandler</h3>
+        <h3>{currentUser?.name || currentUser?.email || 'Expense User'}</h3>
+        {currentUser && (
+          <button className="logout-btn" onClick={handleLogout}>
+            <FaSignOutAlt /> Logout
+          </button>
+        )}
       </div>
 
       <nav>

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../AuthContext";
 import "./Login.css";
 
 function Login() {
@@ -9,8 +10,15 @@ function Login() {
   });
 
   const [errors, setErrors] = useState({});
-  const [loginError, setLoginError] = useState("");
+  const [formError, setFormError] = useState("");
+  const { login, authLoading, authError, currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/home");
+    }
+  }, [currentUser, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -20,7 +28,7 @@ function Login() {
   };
 
   const validate = () => {
-    let newErrors = {};
+    const newErrors = {};
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
@@ -33,7 +41,7 @@ function Login() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const validationErrors = validate();
@@ -43,27 +51,15 @@ function Login() {
       return;
     }
 
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user) {
-      setLoginError("No account found. Please register first.");
-      return;
-    }
-
-    if (
-      formData.email !== user.email ||
-      formData.password !== user.password
-    ) {
-      setLoginError("Invalid email or password.");
+    const response = await login(formData.email, formData.password);
+    if (!response.success) {
+      setFormError(response.message || authError);
       return;
     }
 
     setErrors({});
-    setLoginError("");
-
-    alert("Login Successful");
+    setFormError("");
     navigate("/home");
-
   };
 
   return (
@@ -72,8 +68,8 @@ function Login() {
         <h1>💰 Expense Tracker</h1>
         <h2>Login</h2>
 
-        {loginError && (
-          <p className="login-error">{loginError}</p>
+        {(formError || authError) && (
+          <p className="login-error">{formError || authError}</p>
         )}
 
         <form onSubmit={handleSubmit}>
@@ -103,8 +99,12 @@ function Login() {
             <p className="login-error">{errors.password}</p>
           )}
 
-          <button className="login-btn" type="submit">
-            Login
+          <button
+            className="login-btn"
+            type="submit"
+            disabled={authLoading}
+          >
+            {authLoading ? "Logging in..." : "Login"}
           </button>
         </form>
 

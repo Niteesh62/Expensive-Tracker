@@ -1,19 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
 import "./Support.css";
 
 function Support() {
-  const [tickets, setTickets] = useState([
-    {
-      id: 1,
-      name: "Niteesh",
-      email: "niteesh@gmail.com",
-      category: "Expense Issue",
-      priority: "High",
-      message: "Expense amount calculation is incorrect.",
-      status: "Open",
-    },
-  ]);
-
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,6 +14,10 @@ function Support() {
     message: "",
   });
 
+  useEffect(() => {
+    loadTickets();
+  }, []);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -29,48 +25,100 @@ function Support() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const loadTickets = async () => {
+    setLoading(true);
+    setError("");
 
-    const newTicket = {
-      id: Date.now(),
-      ...formData,
-      status: "Open",
-    };
-
-    setTickets([...tickets, newTicket]);
-
-    setFormData({
-      name: "",
-      email: "",
-      category: "",
-      priority: "",
-      message: "",
-    });
+    try {
+      const response = await axiosInstance.get(
+        "/accounts/support-tickets/"
+      );
+      setTickets(response.data);
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to load support tickets."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (id) => {
-    const confirmDelete = window.confirm(
-      "Delete this ticket?"
-    );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (confirmDelete) {
-      setTickets(
-        tickets.filter(
-          (ticket) => ticket.id !== id
-        )
+    try {
+      const response = await axiosInstance.post(
+        "/accounts/support-tickets/",
+        {
+          ...formData,
+          status: "Open",
+        }
+      );
+
+      setTickets((prev) => [response.data, ...prev]);
+      setFormData({
+        name: "",
+        email: "",
+        category: "",
+        priority: "",
+        message: "",
+      });
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to create ticket."
       );
     }
   };
 
-  const updateStatus = (id, status) => {
-    setTickets(
-      tickets.map((ticket) =>
-        ticket.id === id
-          ? { ...ticket, status }
-          : ticket
-      )
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Delete this ticket?"
     );
+
+    if (!confirmDelete) return;
+
+    try {
+      await axiosInstance.delete(
+        `/accounts/support-tickets/${id}/`
+      );
+      setTickets((prev) =>
+        prev.filter((ticket) => ticket.id !== id)
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to delete ticket."
+      );
+    }
+  };
+
+  const updateStatus = async (id, status) => {
+    try {
+      const ticket = tickets.find(
+        (item) => item.id === id
+      );
+      if (!ticket) return;
+
+      const response = await axiosInstance.put(
+        `/accounts/support-tickets/${id}/`,
+        {
+          ...ticket,
+          status,
+        }
+      );
+      setTickets((prev) =>
+        prev.map((item) =>
+          item.id === id ? response.data : item
+        )
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to update ticket status."
+      );
+    }
   };
 
   const openCount = tickets.filter(
@@ -109,6 +157,8 @@ function Support() {
 
       <div className="support-form-card">
         <h2>Create Ticket</h2>
+
+        {error && <p className="error-text">{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <input
@@ -184,81 +234,78 @@ function Support() {
       <div className="tickets-section">
         <h2>Support Tickets</h2>
 
-        <table className="ticket-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Priority</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {tickets.map((ticket) => (
-              <tr key={ticket.id}>
-                <td>{ticket.name}</td>
-
-                <td>{ticket.category}</td>
-
-                <td>
-                  <span
-                    className={`priority ${ticket.priority.toLowerCase()}`}
-                  >
-                    {ticket.priority}
-                  </span>
-                </td>
-
-                <td>
-                  <span
-                    className={`status ${ticket.status.toLowerCase().replace(
-                      " ",
-                      "-"
-                    )}`}
-                  >
-                    {ticket.status}
-                  </span>
-                </td>
-
-                <td>
-                  <button
-                    className="progress-btn"
-                    onClick={() =>
-                      updateStatus(
-                        ticket.id,
-                        "In Progress"
-                      )
-                    }
-                  >
-                    Progress
-                  </button>
-
-                  <button
-                    className="resolve-btn"
-                    onClick={() =>
-                      updateStatus(
-                        ticket.id,
-                        "Resolved"
-                      )
-                    }
-                  >
-                    Resolve
-                  </button>
-
-                  <button
-                    className="delete-btn"
-                    onClick={() =>
-                      handleDelete(ticket.id)
-                    }
-                  >
-                    Delete
-                  </button>
-                </td>
+        {loading ? (
+          <p>Loading support tickets...</p>
+        ) : (
+          <table className="ticket-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {tickets.map((ticket) => (
+                <tr key={ticket.id}>
+                  <td>{ticket.name}</td>
+
+                  <td>{ticket.category}</td>
+
+                  <td>
+                    <span
+                      className={`priority ${ticket.priority.toLowerCase()}`}
+                    >
+                      {ticket.priority}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span
+                      className={`status ${ticket.status
+                        .toLowerCase()
+                        .replace(" ", "-")}`}
+                    >
+                      {ticket.status}
+                    </span>
+                  </td>
+
+                  <td>
+                    <button
+                      className="progress-btn"
+                      onClick={() =>
+                        updateStatus(ticket.id, "In Progress")
+                      }
+                    >
+                      Progress
+                    </button>
+
+                    <button
+                      className="resolve-btn"
+                      onClick={() =>
+                        updateStatus(ticket.id, "Resolved")
+                      }
+                    >
+                      Resolve
+                    </button>
+
+                    <button
+                      className="delete-btn"
+                      onClick={() =>
+                        handleDelete(ticket.id)
+                      }
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

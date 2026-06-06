@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../AuthContext";
 import "./Register.css";
 
 function Register() {
@@ -11,6 +12,9 @@ function Register() {
   });
 
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState("");
+  const { register, authLoading } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -20,7 +24,7 @@ function Register() {
   };
 
   const validate = () => {
-    let newErrors = {};
+    const newErrors = {};
 
     if (!formData.name.trim()) {
       newErrors.name = "Name is required";
@@ -35,9 +39,7 @@ function Register() {
         "Password must be at least 8 characters";
     }
 
-    if (
-      formData.password !== formData.confirmPassword
-    ) {
+    if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword =
         "Passwords do not match";
     }
@@ -45,7 +47,7 @@ function Register() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const validationErrors = validate();
@@ -55,25 +57,26 @@ function Register() {
       return;
     }
 
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      })
+    const response = await register(
+      formData.name,
+      formData.email,
+      formData.password
     );
 
-    alert("Registration Successful");
+    if (!response.success) {
+      setSubmitError(response.message);
+      return;
+    }
 
+    setSubmitError("");
     setFormData({
       name: "",
       email: "",
       password: "",
       confirmPassword: "",
     });
-
     setErrors({});
+    navigate("/");
   };
 
   return (
@@ -81,6 +84,10 @@ function Register() {
       <div className="register-card">
         <h1>💰 Expense Tracker</h1>
         <h2>Create Account</h2>
+
+        {submitError && (
+          <p className="register-error">{submitError}</p>
+        )}
 
         <form onSubmit={handleSubmit}>
           <input
@@ -140,8 +147,9 @@ function Register() {
           <button
             className="register-btn"
             type="submit"
+            disabled={authLoading}
           >
-            Register
+            {authLoading ? "Registering..." : "Register"}
           </button>
         </form>
 

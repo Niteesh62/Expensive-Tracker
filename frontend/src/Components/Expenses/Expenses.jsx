@@ -1,101 +1,172 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
+import { AuthContext } from "../../AuthContext";
 import "./Expenses.css";
 
 function Expenses() {
-  const [expenses, setExpenses] = useState([
-    {
-      id: 1,
-      date: "2026-06-01",
-      category: "Food",
-      payment: "UPI",
-      amount: 120,
-    },
-    {
-      id: 2,
-      date: "2026-06-02",
-      category: "Travel",
-      payment: "Card",
-      amount: 500,
-    },
-  ]);
-
+  const { currentUser } = useContext(AuthContext);
+  const [expenses, setExpenses] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     id: null,
+    title: "",
     date: "",
     category: "",
-    payment: "",
     amount: "",
+    type: "expense",
+    description: "",
   });
 
-  const totalExpense = expenses.reduce(
-    (total, expense) => total + expense.amount,
-    0
-  );
+  useEffect(() => {
+    if (currentUser) {
+      loadExpenses();
+    }
+  }, [currentUser]);
+
+  const loadExpenses = async () => {
+    if (!currentUser) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axiosInstance.get(
+        "/accounts/expenses/",
+        { params: { user_id: currentUser.id } }
+      );
+      setExpenses(response.data);
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to load expenses."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalExpense = expenses
+    .filter((item) => item.type === "expense")
+    .reduce((total, expense) => total + Number(expense.amount), 0);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleAddExpense = () => {
     setFormData({
       id: null,
+      title: "",
       date: "",
       category: "",
-      payment: "",
       amount: "",
+      type: "expense",
+      description: "",
     });
-
     setShowForm(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.id) {
-      setExpenses(
-        expenses.map((expense) =>
-          expense.id === formData.id
-            ? {
-                ...formData,
-                amount: Number(formData.amount),
-              }
-            : expense
-        )
-      );
-    } else {
-      setExpenses([
-        ...expenses,
-        {
-          ...formData,
-          id: Date.now(),
-          amount: Number(formData.amount),
-        },
-      ]);
+    if (!currentUser) {
+      setError("Please login to manage expenses.");
+      return;
     }
 
-    setShowForm(false);
+    try {
+      if (formData.id) {
+        const response = await axiosInstance.put(
+          `/accounts/expenses/${formData.id}/`,
+          {
+            user: currentUser.id,
+            title: formData.title,
+            date: formData.date,
+            category: formData.category,
+            amount: Number(formData.amount),
+            type: formData.type,
+            description: formData.description,
+          }
+        );
+        setExpenses((prev) =>
+          prev.map((expense) =>
+            expense.id === formData.id
+              ? response.data
+              : expense
+          )
+        );
+      } else {
+        const response = await axiosInstance.post(
+          "/accounts/expenses/",
+          {
+            user: currentUser.id,
+            title: formData.title,
+            date: formData.date,
+            category: formData.category,
+            amount: Number(formData.amount),
+            type: formData.type,
+            description: formData.description,
+          }
+        );
+        setExpenses((prev) => [response.data, ...prev]);
+      }
+
+      setShowForm(false);
+      setFormData({
+        id: null,
+        title: "",
+        date: "",
+        category: "",
+        amount: "",
+        type: "expense",
+        description: "",
+      });
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to save expense."
+      );
+    }
   };
 
   const handleEdit = (expense) => {
-    setFormData(expense);
+    setFormData({
+      id: expense.id,
+      title: expense.title,
+      date: expense.date,
+      category: expense.category,
+      amount: expense.amount,
+      type: expense.type,
+      description: expense.description || "",
+    });
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Delete this expense?"
     );
 
-    if (confirmDelete) {
-      setExpenses(
-        expenses.filter(
-          (expense) => expense.id !== id
-        )
+    if (!confirmDelete) return;
+
+    try {
+      await axiosInstance.delete(
+        `/accounts/expenses/${id}/`
+      );
+      setExpenses((prev) =>
+        prev.filter((expense) => expense.id !== id)
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to delete expense."
       );
     }
   };
@@ -116,7 +187,7 @@ function Expenses() {
       <div className="summary-cards">
         <div className="card">
           <h3>Total Expenses</h3>
-          <h2>${totalExpense}</h2>
+          <h2>₹{totalExpense}</h2>
         </div>
 
         <div className="card">
@@ -138,6 +209,15 @@ function Expenses() {
             </h2>
 
             <input
+              type="text"
+              name="title"
+              placeholder="Title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+            />
+
+            <input
               type="date"
               name="date"
               value={formData.date}
@@ -145,35 +225,14 @@ function Expenses() {
               required
             />
 
-            <select
+            <input
+              type="text"
               name="category"
+              placeholder="Category"
               value={formData.category}
               onChange={handleChange}
               required
-            >
-              <option value="">
-                Select Category
-              </option>
-              <option>Food</option>
-              <option>Travel</option>
-              <option>Shopping</option>
-              <option>Bills</option>
-              <option>Entertainment</option>
-            </select>
-
-            <select
-              name="payment"
-              value={formData.payment}
-              onChange={handleChange}
-              required
-            >
-              <option value="">
-                Payment Method
-              </option>
-              <option>UPI</option>
-              <option>Cash</option>
-              <option>Card</option>
-            </select>
+            />
 
             <input
               type="number"
@@ -182,6 +241,22 @@ function Expenses() {
               value={formData.amount}
               onChange={handleChange}
               required
+            />
+
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+            >
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+
+            <textarea
+              name="description"
+              placeholder="Description"
+              value={formData.description}
+              onChange={handleChange}
             />
 
             <div className="form-buttons">
@@ -202,61 +277,61 @@ function Expenses() {
         </div>
       )}
 
-      <div className="table-container">
-        <table className="expense-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Category</th>
-              <th>Payment</th>
-              <th>Amount</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {expenses.map((expense) => (
-              <tr key={expense.id}>
-                <td>{expense.date}</td>
-
-                <td>
-                  <span
-                    className={`badge ${expense.category.toLowerCase()}`}
-                  >
-                    {expense.category}
-                  </span>
-                </td>
-
-                <td>{expense.payment}</td>
-
-                <td className="amount">
-                  ${expense.amount}
-                </td>
-
-                <td>
-                  <button
-                    className="edit-btn"
-                    onClick={() =>
-                      handleEdit(expense)
-                    }
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    className="delete-btn"
-                    onClick={() =>
-                      handleDelete(expense.id)
-                    }
-                  >
-                    Delete
-                  </button>
-                </td>
+      {loading ? (
+        <p>Loading expenses...</p>
+      ) : (
+        <div className="table-container">
+          <table className="expense-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              {expenses.map((expense) => (
+                <tr key={expense.id}>
+                  <td>{expense.date}</td>
+                  <td>{expense.title}</td>
+                  <td>{expense.category}</td>
+                  <td className="amount">₹{expense.amount}</td>
+                  <td>
+                    <span
+                      className={
+                        expense.type === "income"
+                          ? "income"
+                          : "expense"
+                      }
+                    >
+                      {expense.type}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      className="edit-btn"
+                      onClick={() => handleEdit(expense)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(expense.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

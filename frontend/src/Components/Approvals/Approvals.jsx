@@ -1,55 +1,65 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
 import "./Approvals.css";
 
 function Approvals() {
-  const [approvals, setApprovals] = useState([
-    {
-      id: 1,
-      employee: "Niteesh",
-      category: "Travel",
-      amount: 5000,
-      date: "2026-06-01",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      employee: "Rahul",
-      category: "Food",
-      amount: 1200,
-      date: "2026-06-02",
-      status: "Approved",
-    },
-    {
-      id: 3,
-      employee: "Arjun",
-      category: "Shopping",
-      amount: 3000,
-      date: "2026-06-03",
-      status: "Rejected",
-    },
-  ]);
-
+  const [approvals, setApprovals] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const approveExpense = (id) => {
-    setApprovals(
-      approvals.map((item) =>
-        item.id === id
-          ? { ...item, status: "Approved" }
-          : item
-      )
-    );
+  useEffect(() => {
+    loadApprovals();
+  }, []);
+
+  const loadApprovals = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axiosInstance.get(
+        "/accounts/approvals/"
+      );
+      setApprovals(response.data);
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to load approvals."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const rejectExpense = (id) => {
-    setApprovals(
-      approvals.map((item) =>
-        item.id === id
-          ? { ...item, status: "Rejected" }
-          : item
-      )
-    );
+  const updateStatus = async (id, status) => {
+    try {
+      const current = approvals.find(
+        (item) => item.id === id
+      );
+      if (!current) return;
+
+      const response = await axiosInstance.put(
+        `/accounts/approvals/${id}/`,
+        {
+          ...current,
+          status,
+        }
+      );
+      setApprovals((prev) =>
+        prev.map((item) =>
+          item.id === id ? response.data : item
+        )
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to update approval."
+      );
+    }
   };
+
+  const approveExpense = (id) => updateStatus(id, "Approved");
+  const rejectExpense = (id) => updateStatus(id, "Rejected");
 
   const filteredData = approvals.filter(
     (item) =>
@@ -105,7 +115,11 @@ function Approvals() {
         </div>
       </div>
 
-      <div className="table-container">
+      {error && <p className="error-text">{error}</p>}
+      {loading ? (
+        <p>Loading approvals...</p>
+      ) : (
+        <div className="table-container">
         <table className="approval-table">
           <thead>
             <tr>
@@ -168,6 +182,7 @@ function Approvals() {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }
