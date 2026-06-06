@@ -10,6 +10,9 @@ import Trips from "./Components/Trips/Trips";
 import Approvals from "./Components/Approvals/Approvals";
 import Settings from "./Components/Settings/Settings";
 import Support from "./Components/Support/Support";
+import ErrorPage401 from "./Components/Errors/ErrorPage401";
+import ErrorPage403 from "./Components/Errors/ErrorPage403";
+import ErrorPage404 from "./Components/Errors/ErrorPage404";
 
 
 function App() {
@@ -29,6 +32,13 @@ function App() {
 
          
         </Route>
+                    {/* Error Pages */}
+            <Route path="/401" element={<ErrorPage401 />} />
+            <Route path="/403" element={<ErrorPage403 />} />
+            <Route path="/404" element={<ErrorPage404 />} />
+            
+            {/* Catch-all for undefined routes */}
+            <Route path="*" element={<ErrorPage404 />} />
 
 
        <Route path="*" element={<h1>404 Not Found</h1>} />

@@ -1,6 +1,5 @@
 // Layout/MainLayout.jsx
 
-
 import { Outlet } from "react-router-dom";
 import Sidebar from "../Sidebar/Sidebar";
 
@@ -12,8 +11,12 @@ const MainLayout = () => {
       <div
         style={{
           flex: 1,
+          marginLeft: "250px",
           padding: "20px",
-          backgroundColor: "#f5f5f5",
+          backgroundColor: "var(--bg-secondary)",
+          color: "var(--text-primary)",
+          transition: "background-color var(--transition), color var(--transition)",
+          overflowY: "auto",
         }}
       >
         <Outlet />

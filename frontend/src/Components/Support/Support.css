@@ -1,7 +1,9 @@
 .support-container {
   padding: 25px;
   min-height: 100vh;
-  background: #f4f7fc;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color var(--transition), color var(--transition);
 }
 
 .support-header {
@@ -11,10 +13,11 @@
 .support-header h1 {
   font-size: 32px;
   margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
 .support-header p {
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .support-cards {
@@ -25,31 +28,34 @@
 
 .card {
   flex: 1;
-  background: white;
+  background-color: var(--card-bg);
   padding: 20px;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  transition: all var(--transition);
 }
 
 .card h3 {
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .card h2 {
   margin-top: 10px;
-  color: #2563eb;
+  color: var(--primary-color);
 }
 
 .support-form-card {
-  background: white;
+  background-color: var(--card-bg);
   padding: 25px;
   border-radius: 15px;
   margin-bottom: 25px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  transition: all var(--transition);
 }
 
 .support-form-card h2 {
   margin-bottom: 20px;
+  color: var(--text-primary);
 }
 
 .support-form-card form {
@@ -62,29 +68,45 @@
 .support-form-card select,
 .support-form-card textarea {
   padding: 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--input-border);
   border-radius: 10px;
   font-size: 15px;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  transition: all var(--transition);
+  font-family: inherit;
+}
+
+.support-form-card input:focus,
+.support-form-card select:focus,
+.support-form-card textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .support-form-card button {
-  background: #2563eb;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 14px;
   border-radius: 10px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
 }
 
 .support-form-card button:hover {
-  background: #1d4ed8;
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
 }
 
 .tickets-section {
-  background: white;
+  background-color: var(--card-bg);
   padding: 25px;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  transition: all var(--transition);
 }
 
 .ticket-table {
@@ -93,18 +115,19 @@
 }
 
 .ticket-table th {
-  background: #2563eb;
+  background-color: var(--primary-color);
   color: white;
   padding: 14px;
 }
 
 .ticket-table td {
   padding: 14px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
 }
 
 .ticket-table tr:hover {
-  background: #f9fafb;
+  background-color: var(--bg-secondary);
 }
 
 .priority,
@@ -116,33 +139,33 @@
 }
 
 .high {
-  background: #fee2e2;
-  color: #dc2626;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
 }
 
 .medium {
-  background: #fef3c7;
-  color: #d97706;
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
 }
 
 .low {
-  background: #dcfce7;
-  color: #15803d;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
 }
 
 .open {
-  background: #dbeafe;
-  color: #2563eb;
+  background-color: rgba(37, 99, 235, 0.1);
+  color: var(--info-color);
 }
 
 .in-progress {
-  background: #fef3c7;
-  color: #d97706;
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
 }
 
 .resolved {
-  background: #dcfce7;
-  color: #15803d;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
 }
 
 .progress-btn,

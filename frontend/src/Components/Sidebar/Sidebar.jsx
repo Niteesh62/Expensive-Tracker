@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import {
   FaHome,
@@ -6,10 +7,15 @@ import {
   FaClipboardCheck,
   FaCog,
   FaHeadset,
+  FaMoon,
+  FaSun,
 } from "react-icons/fa";
+import { ThemeContext } from "../../ThemeContext";
 import "../Sidebar/Sidebar.css";
 
 function Sidebar() {
+  const { isDark, toggleTheme } = useContext(ThemeContext);
+
   return (
     <aside className="sidebar">
       <div className="profile">
@@ -52,6 +58,16 @@ function Sidebar() {
           <span>Support</span>
         </NavLink>
       </nav>
+
+      <div className="theme-toggle">
+        <button
+          className="theme-btn"
+          onClick={toggleTheme}
+          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        >
+          {isDark ? <FaSun /> : <FaMoon />}
+        </button>
+      </div>
 
       <div className="logo">EXPENSIO</div>
     </aside>

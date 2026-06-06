@@ -1,7 +1,9 @@
 .trips-container {
   padding: 25px;
-  background: #f4f7fc;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   min-height: 100vh;
+  transition: background-color var(--transition), color var(--transition);
 }
 
 .trips-header {
@@ -12,12 +14,19 @@
 }
 
 .add-trip-btn {
-  background: #2563eb;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 12px 18px;
   border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
+}
+
+.add-trip-btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
 }
 
 .trip-cards {
@@ -28,21 +37,23 @@
 
 .trip-card {
   flex: 1;
-  background: white;
+  background-color: var(--card-bg);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+  box-shadow: 0 4px 10px var(--card-shadow);
+  transition: all var(--transition);
 }
 
 .trip-card h2 {
-  color: #2563eb;
+  color: var(--primary-color);
 }
 
 .table-container {
-  background: white;
+  background-color: var(--card-bg);
   border-radius: 12px;
   overflow-x: auto;
-  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+  box-shadow: 0 4px 10px var(--card-shadow);
+  transition: all var(--transition);
 }
 
 .trip-table {
@@ -51,18 +62,19 @@
 }
 
 .trip-table th {
-  background: #2563eb;
+  background-color: var(--primary-color);
   color: white;
   padding: 15px;
 }
 
 .trip-table td {
   padding: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
 }
 
 .trip-table tr:hover {
-  background: #f8f9ff;
+  background-color: var(--bg-secondary);
 }
 
 .status {
@@ -73,62 +85,78 @@
 }
 
 .upcoming {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background-color: rgba(37, 99, 235, 0.1);
+  color: var(--info-color);
 }
 
 .active {
-  background: #dcfce7;
-  color: #15803d;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
 }
 
 .completed {
-  background: #e5e7eb;
-  color: #374151;
+  background-color: rgba(107, 114, 128, 0.1);
+  color: var(--text-secondary);
 }
 
 .edit-btn {
-  background: #facc15;
+  background-color: var(--warning-color);
   border: none;
   padding: 8px 12px;
   margin-right: 8px;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
+  color: white;
 }
 
 .delete-btn {
-  background: #ef4444;
+  background-color: var(--error-color);
   color: white;
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
 }
 
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .trip-form {
-  background: white;
+  background-color: var(--card-bg);
   width: 420px;
   padding: 25px;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  color: var(--text-primary);
 }
 
 .trip-form input,
 .trip-form select {
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  transition: all var(--transition);
+}
+
+.trip-form input:focus,
+.trip-form select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .form-buttons {

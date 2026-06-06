@@ -1,7 +1,9 @@
 .approvals-container {
   padding: 25px;
   min-height: 100vh;
-  background: #f4f7fc;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color var(--transition), color var(--transition);
 }
 
 .approvals-header {
@@ -14,8 +16,11 @@
 .approvals-header input {
   width: 280px;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  transition: all var(--transition);
 }
 
 .approval-cards {
@@ -26,21 +31,23 @@
 
 .approval-card {
   flex: 1;
-  background: white;
+  background-color: var(--card-bg);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+  box-shadow: 0 4px 10px var(--card-shadow);
+  transition: all var(--transition);
 }
 
 .approval-card h2 {
-  color: #2563eb;
+  color: var(--primary-color);
 }
 
 .table-container {
-  background: white;
+  background-color: var(--card-bg);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+  box-shadow: 0 4px 10px var(--card-shadow);
+  transition: all var(--transition);
 }
 
 .approval-table {
@@ -49,18 +56,19 @@
 }
 
 .approval-table th {
-  background: #2563eb;
+  background-color: var(--primary-color);
   color: white;
   padding: 15px;
 }
 
 .approval-table td {
   padding: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
 }
 
 .approval-table tr:hover {
-  background: #f8f9ff;
+  background-color: var(--bg-secondary);
 }
 
 .status {
@@ -71,41 +79,53 @@
 }
 
 .pending {
-  background: #fef3c7;
-  color: #b45309;
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
 }
 
 .approved {
-  background: #dcfce7;
-  color: #15803d;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
 }
 
 .rejected {
-  background: #fee2e2;
-  color: #dc2626;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
 }
 
 .approve-btn {
-  background: #22c55e;
+  background-color: var(--success-color);
   color: white;
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
   margin-right: 8px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
+}
+
+.approve-btn:hover {
+  opacity: 0.8;
 }
 
 .reject-btn {
-  background: #ef4444;
+  background-color: var(--error-color);
   color: white;
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
+}
+
+.reject-btn:hover {
+  opacity: 0.8;
 }
 
 .completed-text {
-  color: gray;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 

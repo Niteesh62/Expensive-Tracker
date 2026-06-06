@@ -1,7 +1,9 @@
 .expenses-container {
   padding: 25px;
   min-height: 100vh;
-  background: #f4f7fc;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color var(--transition), color var(--transition);
 }
 
 .expenses-header {
@@ -12,16 +14,19 @@
 }
 
 .add-btn {
-  background: #4f46e5;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 12px 18px;
   border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
 }
 
 .add-btn:hover {
-  background: #4338ca;
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
 }
 
 .summary-cards {
@@ -31,27 +36,29 @@
 }
 
 .card {
-  background: white;
+  background-color: var(--card-bg);
   flex: 1;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0,0,0,.08);
+  box-shadow: 0px 4px 10px var(--card-shadow);
+  transition: all var(--transition);
 }
 
 .card h3 {
-  color: gray;
+  color: var(--text-secondary);
   margin-bottom: 10px;
 }
 
 .card h2 {
-  color: #4f46e5;
+  color: var(--primary-color);
 }
 
 .table-container {
-  background: white;
+  background-color: var(--card-bg);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0px 4px 10px rgba(0,0,0,.08);
+  box-shadow: 0px 4px 10px var(--card-shadow);
+  transition: all var(--transition);
 }
 
 .expense-table {
@@ -60,41 +67,55 @@
 }
 
 .expense-table th {
-  background: #4f46e5;
+  background-color: var(--primary-color);
   color: white;
   padding: 15px;
 }
 
 .expense-table td {
   padding: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
 }
 
 .expense-table tr:hover {
-  background: #f8f9ff;
+  background-color: var(--bg-secondary);
 }
 
 .amount {
-  color: green;
+  color: var(--success-color);
   font-weight: bold;
 }
 
 .edit-btn {
-  background: #facc15;
+  background-color: var(--warning-color);
   border: none;
   padding: 8px 12px;
   margin-right: 8px;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
+  color: white;
+}
+
+.edit-btn:hover {
+  opacity: 0.8;
 }
 
 .delete-btn {
-  background: #ef4444;
+  background-color: var(--error-color);
   color: white;
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition);
+}
+
+.delete-btn:hover {
+  opacity: 0.8;
 }
 
 .badge {
@@ -105,28 +126,28 @@
 }
 
 .food {
-  background: #dcfce7;
-  color: #15803d;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
 }
 
 .travel {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background-color: rgba(37, 99, 235, 0.1);
+  color: var(--info-color);
 }
 
 .shopping {
-  background: #fce7f3;
-  color: #be185d;
+  background-color: rgba(236, 72, 153, 0.1);
+  color: #ec4899;
 }
 
 .bills {
-  background: #fef3c7;
-  color: #b45309;
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
 }
 
 .entertainment {
-  background: #ede9fe;
-  color: #6d28d9;
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
 }
 
 .modal {
@@ -135,20 +156,21 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .expense-form {
-  background: white;
+  background-color: var(--card-bg);
   width: 400px;
   padding: 25px;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  color: var(--text-primary);
 }
 
 .expense-form input,
