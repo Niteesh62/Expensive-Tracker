@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.db import connection
 from django.db.utils import OperationalError
+from django.http import JsonResponse
+from datetime import datetime
 
 
 # Custom 404 handler
@@ -14,10 +16,12 @@ def custom_404(request, exception):
     }, status=404)
     
 def home(request):
+    now = datetime.now()  # server local time
+
     return JsonResponse({
         "status": "ok",
         "message": "Backend is running 🚀",
-        "time": timezone.now()
+        "time": now.strftime("%Y-%m-%d %H:%M:%S")
     })
 
 
