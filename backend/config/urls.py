@@ -12,6 +12,13 @@ def custom_404(request, exception):
         "error": "Not Found",
         "message": "The requested API endpoint does not exist."
     }, status=404)
+    
+def home(request):
+    return JsonResponse({
+        "status": "ok",
+        "message": "Backend is running 🚀",
+        "time": timezone.now()
+    })
 
 
 # ✅ Health Check API (DB included)
@@ -38,6 +45,8 @@ urlpatterns = [
 
     # Health API
     path('api/health/', health_check),
+    
+    path('', home),
 
     # Accounts API
     path('api/accounts/', include('apps.myapp.urls')),
