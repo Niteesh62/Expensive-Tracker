@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
-from django.utils import timezone
 from django.db import connection
 from django.db.utils import OperationalError
 
@@ -14,23 +13,22 @@ def custom_404(request, exception):
     }, status=404)
 
 
-# ✅ Health Check API (DB included)
+# Health Check API (DB included)
 def health_check(request):
-    db_status = "ok"
-
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
             cursor.fetchone()
-    except OperationalError:
-        db_status = "down"
-
-    return JsonResponse({
-        "status": "ok" if db_status == "ok" else "degraded",
-        "database": db_status,
-        "message": "Backend health check completed",
-        "time": timezone.now()
-    })
+        return JsonResponse({
+            "status": "healthy",
+            "database": "connected",
+        })
+    except OperationalError as e:
+        return JsonResponse({
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e),
+        }, status=503)
 
 
 urlpatterns = [
