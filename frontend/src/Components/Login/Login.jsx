@@ -1,143 +1,118 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 function Login() {
-
-  const navigate = useNavigate();
-
-  const [user, setUser] = useState({
-    username: "",
+  const [formData, setFormData] = useState({
+    email: "",
     password: "",
   });
 
   const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-
-    setUser({
-      ...user,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
     });
-
   };
 
-  const validateForm = () => {
-
+  const validate = () => {
     let newErrors = {};
 
-    // Username Validation
-    if (user.username.trim() === "") {
-      newErrors.username = "Username is required";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
     }
 
-    // Password Validation
-    const passwordPattern =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-
-    if (!passwordPattern.test(user.password)) {
-
-      newErrors.password =
-        "Password must contain Capital, Small, Number & Special Character";
-
+    if (!formData.password.trim()) {
+      newErrors.password = "Password is required";
     }
 
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
-  const handleSubmit = async (e) => {
-
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (validateForm()) {
+    const validationErrors = validate();
 
-      try {
-
-        const response = await axios.post(
-          "http://127.0.0.1:8000/api/accounts/login/",
-          user
-        );
-
-        console.log(response.data);
-
-        // Store JWT Tokens
-        localStorage.setItem(
-          "access_token",
-          response.data.access
-        );
-
-        localStorage.setItem(
-          "refresh_token",
-          response.data.refresh
-        );
-
-        alert("Login Successful ✅");
-
-        setUser({
-          username: "",
-          password: "",
-        });
-
-        navigate("/dashboard");
-
-      } catch (error) {
-
-        console.log(error);
-
-        alert("Invalid Credentials ❌");
-
-      }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) {
+      setLoginError("No account found. Please register first.");
+      return;
+    }
+
+    if (
+      formData.email !== user.email ||
+      formData.password !== user.password
+    ) {
+      setLoginError("Invalid email or password.");
+      return;
+    }
+
+    setErrors({});
+    setLoginError("");
+
+    alert("Login Successful");
+    navigate("/home");
+
   };
 
   return (
-
     <div className="login-container">
+      <div className="login-card">
+        <h1>💰 Expense Tracker</h1>
+        <h2>Login</h2>
 
-      <form
-        className="login-form"
-        onSubmit={handleSubmit}
-      >
-
-        <h2>Welcome Back</h2>
-
-        <input
-          type="text"
-          name="username"
-          placeholder="Enter Username"
-          value={user.username}
-          onChange={handleChange}
-        />
-
-        {errors.username && (
-          <p className="error">
-            {errors.username}
-          </p>
+        {loginError && (
+          <p className="login-error">{loginError}</p>
         )}
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Enter Your Password"
-          value={user.password}
-          onChange={handleChange}
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            className="login-input"
+            type="email"
+            name="email"
+            placeholder="Enter Email"
+            value={formData.email}
+            onChange={handleChange}
+          />
 
-        {errors.password && (
-          <p className="error">
-            {errors.password}
-          </p>
-        )}
+          {errors.email && (
+            <p className="login-error">{errors.email}</p>
+          )}
 
-        <button type="submit">
-          Login
-        </button>
+          <input
+            className="login-input"
+            type="password"
+            name="password"
+            placeholder="Enter Password"
+            value={formData.password}
+            onChange={handleChange}
+          />
 
-      </form>
+          {errors.password && (
+            <p className="login-error">{errors.password}</p>
+          )}
 
+          <button className="login-btn" type="submit">
+            Login
+          </button>
+        </form>
+
+        <p className="login-link">
+          Don't have an account?{" "}
+          <Link to="/register">Register</Link>
+        </p>
+      </div>
     </div>
   );
 }

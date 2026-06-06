@@ -1,166 +1,155 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import "./Register.css";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 function Register() {
-
-  const navigate = useNavigate();
-
-  const [user, setUser] = useState({
-    username: "",
+  const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-
-    setUser({
-      ...user,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
     });
-
   };
 
-  const validateForm = () => {
-
+  const validate = () => {
     let newErrors = {};
 
-    // Username Validation
-    if (user.username.trim() === "") {
-      newErrors.username = "Username is required";
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
     }
 
-    // Email Validation
-    const emailPattern =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailPattern.test(user.email)) {
-      newErrors.email = "Enter valid email";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
     }
 
-    // Password Validation
-    const passwordPattern =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-
-    if (!passwordPattern.test(user.password)) {
-
+    if (formData.password.length < 8) {
       newErrors.password =
-        "Password must contain capital, small, number, special character and 8 characters";
-
+        "Password must be at least 8 characters";
     }
 
-    setErrors(newErrors);
+    if (
+      formData.password !== formData.confirmPassword
+    ) {
+      newErrors.confirmPassword =
+        "Passwords do not match";
+    }
 
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
-  const handleSubmit = async (e) => {
-
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (validateForm()) {
+    const validationErrors = validate();
 
-      try {
-
-        const response = await axios.post(
-          "http://127.0.0.1:8000/api/accounts/register/",
-          user
-        );
-
-        console.log(response.data);
-
-        alert("Registered Successfully ✅");
-
-        setUser({
-          username: "",
-          email: "",
-          password: "",
-        });
-
-        navigate("/login");
-
-      } catch (error) {
-
-        console.log(error);
-
-        alert("Registration Failed ❌");
-
-      }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      })
+    );
+
+    alert("Registration Successful");
+
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+
+    setErrors({});
   };
 
   return (
-
     <div className="register-container">
-
-      <form
-        className="register-form"
-        onSubmit={handleSubmit}
-      >
-
+      <div className="register-card">
+        <h1>💰 Expense Tracker</h1>
         <h2>Create Account</h2>
 
-        <input
-          type="text"
-          name="username"
-          placeholder="Enter Username"
-          value={user.username}
-          onChange={handleChange}
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            className="register-input"
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+          />
 
-        {errors.username && (
-          <p className="error">
-            {errors.username}
-          </p>
-        )}
+          {errors.name && (
+            <p className="register-error">{errors.name}</p>
+          )}
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter Your Email"
-          value={user.email}
-          onChange={handleChange}
-        />
+          <input
+            className="register-input"
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+          />
 
-        {errors.email && (
-          <p className="error">
-            {errors.email}
-          </p>
-        )}
+          {errors.email && (
+            <p className="register-error">{errors.email}</p>
+          )}
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Enter Your Password"
-          value={user.password}
-          onChange={handleChange}
-        />
+          <input
+            className="register-input"
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+          />
 
-        {errors.password && (
-          <p className="error">
-            {errors.password}
-          </p>
-        )}
+          {errors.password && (
+            <p className="register-error">{errors.password}</p>
+          )}
 
-        <button type="submit">
-          Register
-        </button>
+          <input
+            className="register-input"
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+          />
 
-        <p className="login-text">
-          Already have an account?
+          {errors.confirmPassword && (
+            <p className="register-error">
+              {errors.confirmPassword}
+            </p>
+          )}
 
-          <span onClick={() => navigate("/login")}>
-            {" "}
-            Login
-          </span>
+          <button
+            className="register-btn"
+            type="submit"
+          >
+            Register
+          </button>
+        </form>
 
+        <p className="register-link">
+          Already have an account?{" "}
+          <Link to="/">Login</Link>
         </p>
-
-      </form>
-
+      </div>
     </div>
   );
 }
